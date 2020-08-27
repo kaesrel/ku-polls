@@ -1,7 +1,7 @@
 # Kasetsart Polls
 Web application for conducting online polls and surveys.
 
-Developed using a Django Framework.
+Developed using Django Framework.
 
 ## Project Documents
 

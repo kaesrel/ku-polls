@@ -1,0 +1,26 @@
+li a {
+	color: green;
+}
+
+body {
+	background: white url("images/background.gif") no-repeat;
+	background-size:cover;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+#container {
+    height: 100%;
+    border-collapse: collapse;
+}
+
+#footer {
+	text-shadow: 0.5px 0.5px #FFFFFF;
+}

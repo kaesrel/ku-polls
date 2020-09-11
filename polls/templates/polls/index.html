@@ -1,3 +1,6 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
+
 {% if latest_question_list %}
 	<ul>
 	{% for question in latest_question_list %}
@@ -7,3 +10,20 @@
 {% else %}
 	<p>No polls are available.</p>
 {% endif %}
+
+
+
+
+
+
+
+
+
+
+<table id="container">
+	<tr>
+		<td valign="bottom">
+			<div id="footer">"Mountain in Glacier National Park" by dr-scott is marked under CC0 1.0. To view the terms, visit https://creativecommons.org/licenses/cc0/1.0/ </div>
+		</td>
+	</tr>
+</table>

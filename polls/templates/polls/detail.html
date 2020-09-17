@@ -1,6 +1,12 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
 
+<ul class="messages">
+  {% for msg in messages %}
+    <li class="{{msg.tags}}">{{ msg }}</li>
+  {% endfor %}
+</ul>
+
 <h1>{{ question.question_text }}</h1>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}

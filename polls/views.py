@@ -54,6 +54,20 @@ class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
 
+    def get(self, request, *args, **kwargs):
+        try:
+            question = Question.objects.get(pk=kwargs['pk'])
+            if not question.is_published():
+                messages.error(request, "That question is not published yet.")
+                return redirect('polls:index')
+        except ObjectDoesNotExist:
+            messages.error(request, "That question does not exist.")
+            return redirect('polls:index')
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)

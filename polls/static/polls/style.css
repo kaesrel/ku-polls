@@ -1,4 +1,4 @@
-li a {
+td a {
 	color: green;
 }
 
@@ -16,6 +16,11 @@ html, body {
     height: 100%;
 }
 
+a 
+{
+	text-shadow: 0.5px 0.5px #FFFFFF;
+}
+
 #container {
     height: 100%;
     border-collapse: collapse;
@@ -23,4 +28,48 @@ html, body {
 
 #footer {
 	text-shadow: 0.5px 0.5px #FFFFFF;
+}
+
+#remark
+{
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+
+#poll_list th, #poll_list td 
+{
+	padding: 4px;
+	border-bottom: 1px solid #ddd;
+}
+
+#question_head
+{
+	text-align: left;	
+}
+
+#poll_list td
+{
+	background-color: #F0F0F0;
+}
+
+label[for^="choice"]
+{
+	background-color: #F0F0F0;
+}
+
+#vote_result th, #vote_result td 
+{
+	padding: 4px;
+	border-bottom: 1px solid #ddd;
+}
+
+td[name="vote_count"]
+{
+	text-align: right;
+}
+
+#vote_result td
+{
+	background-color: #F0F0F0;
 }

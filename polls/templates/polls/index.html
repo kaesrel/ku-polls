@@ -10,11 +10,30 @@
 {% endif %}
 
 {% if latest_question_list %}
-	<ul>
+	<table id="poll_list">
+		<thead>
+			<tr>
+				<th id="question_head">Questions</th>
+				<th>Vote</th>
+				<th>Result</th>
+			</tr>
+		</thead>
 	{% for question in latest_question_list %}
-		<li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+		{% if question.is_published %}
+		<tr>
+		<td>{{ question.question_text }}</td>
+			<td>
+			{% if question.can_vote %}
+				<a href="{% url 'polls:detail' question.id %}">vote</a>
+			{% endif %}
+			</td>
+			<td>
+				<a href="{% url 'polls:results' question.id %}">result</a>
+			</td>
+		</tr>	
+		{% endif %}
 	{% endfor %}
-	</ul>
+	</table>
 {% else %}
 	<p>No polls are available.</p>
 {% endif %}

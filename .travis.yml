@@ -6,10 +6,16 @@ python: "3.6"
 # don't clone more than necessary
 git:
   depth: 1
+  
+env:
 
 # Install any dependencies
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements.txt 
+    
+    
+before_script:
+  - python manage.py migrate  
     
 # script to run tests. Script can have many commands, one per line.
 script: 

@@ -2,4 +2,4 @@ coverage
 flake8
 flake8-docstrings
 django
-decouple
+python-decouple

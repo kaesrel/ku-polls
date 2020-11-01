@@ -7,9 +7,42 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-# import logging
+from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
+from django.dispatch import receiver
+from datetime import datetime
+import logging
 
 from .models import Choice, Question, Vote
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+log = logging.getLogger(__name__)
+
+
+@receiver(user_logged_in)
+def user_logged_in_callback(sender, request, user, **kwargs):
+    ip = get_client_ip(request)
+    date = datetime.now()
+    log.info(f'Login user: {user} Ip: {ip} Date: {date}')
+
+@receiver(user_logged_out)
+def user_logged_out_callback(sender, request, user, **kwargs):
+    ip = get_client_ip(request)
+    date = datetime.now()
+    log.info(f'Logout user: {user} Ip: {ip} Date: {date}')
+
+
+@receiver(user_login_failed)
+def user_login_failed_callback(sender, request, credentials, **kwargs):
+    ip = get_client_ip(request)
+    date = datetime.now()
+    log.warning(f"Login failed for: {credentials['username']} Ip: {ip} Date: {date}")
 
 
 class IndexView(generic.ListView):
@@ -122,6 +155,10 @@ def vote(request, question_id):
                       })
     else:  # other exceptions or succession
         # prev_vote = Vote.objects.filter(question=question, voter=voter)
+        ip = get_client_ip(request)
+        date = datetime.now()
+        log.info(f'Login user: {voter} Ip: {ip} Date: {date} Question_Id: {question.id}')
+
         increment = 1
         try:  # check whether the voter re-vote the same question
             prev_vote = Vote.objects.get(question=question, voter=voter)

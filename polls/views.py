@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+# import logging
 
 from .models import Choice, Question, Vote
 
@@ -30,20 +31,6 @@ class DetailView(LoginRequiredMixin, generic.DetailView):
     model = Question
     template_name = 'polls/detail.html'
 
-    # def get_queryset(self):
-    #     return Question.objects.filter(pub_date__lte=timezone.now())
-
-    # try:  # check whether the voter re-vote the same question
-    #     prev_vote = Vote.objects.get(question=question, voter=voter)
-    #     # prev_choice = Choice.objects.get(pk=prev_vote.values()[0]["choice_id"])
-    #     prev_choice = prev_vote.choice
-    #     if prev_choice.id == selected_choice.id:
-    #         increment = 0
-    #     prev_choice.votes -= 1
-    #     prev_choice.save()
-    # except ObjectDoesNotExist:  # new vote
-    #     pass
-
     def get(self, request, *args, **kwargs):
         """Handle request and return the appropriate response page."""
         try:
@@ -51,18 +38,47 @@ class DetailView(LoginRequiredMixin, generic.DetailView):
             if not question.can_vote():
                 messages.error(request, "That question is not allowed for voting.")
                 return redirect('polls:index')
+
         except ObjectDoesNotExist:
             messages.error(request, "That question does not exist.")
             return redirect('polls:index')
-        # try:
-        #     self.object = self.get_object()
-        # except Http404:
-        #     # messages.error(request, "That question is not allowed for voting.")
-        #     messages.error(request, kwargs['pk'])
-        #     return redirect('polls:index')
+
+        voter = request.user
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
+        context['prev_choice'] = ""
+        context['button_text'] = "Vote"
+
+        try:  # check whether the voter re-vote the same question
+            prev_vote = Vote.objects.get(question=question, voter=voter)
+            # prev_choice = Choice.objects.get(pk=prev_vote.values()[0]["choice_id"])
+            prev_choice = prev_vote.choice
+            context['prev_choice'] = prev_choice.choice_text
+            context['button_text'] = "Re-Vote"
+        except ObjectDoesNotExist:  # new vote
+            pass
+
         return self.render_to_response(context)
+
+    # def get_context_data(self, **kwargs):
+    #     # Call the base implementation first to get a context
+    #     context = super().get_context_data(**kwargs)
+    #     question = Question.objects.get(pk=kwargs['pk'])
+    #     voter = request.user
+    #     context['prev_choice'] = ""
+    #     context['button_text'] = "Vote"
+    #
+    #     try:  # check whether the voter re-vote the same question
+    #         prev_vote = Vote.objects.get(question=question, voter=voter)
+    #         # prev_choice = Choice.objects.get(pk=prev_vote.values()[0]["choice_id"])
+    #         prev_choice = prev_vote.choice
+    #         context['prev_choice'] = prev_choice.choice_text
+    #         context['button_text'] = "Re-Vote"
+    #     except ObjectDoesNotExist:  # new vote
+    #         pass
+    #
+    #     return context
+
 
 
 class ResultsView(generic.DetailView):

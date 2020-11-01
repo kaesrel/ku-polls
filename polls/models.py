@@ -2,6 +2,7 @@
 import datetime
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 
 class Question(models.Model):
@@ -49,3 +50,13 @@ class Choice(models.Model):
         """Meta setting for Choice Model."""
 
         ordering = ['-votes']
+
+
+class Vote(models.Model):
+    """Vote Model"""
+
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    voter = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
+
+    # def create_or_update_per_user(self, selected_choice):

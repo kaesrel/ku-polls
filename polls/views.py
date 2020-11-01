@@ -5,8 +5,10 @@ from django.views import generic
 from django.utils import timezone
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Choice, Question
+from .models import Choice, Question, Vote
 
 
 class IndexView(generic.ListView):
@@ -22,7 +24,7 @@ class IndexView(generic.ListView):
         # return Question.objects.all()
 
 
-class DetailView(generic.DetailView):
+class DetailView(LoginRequiredMixin, generic.DetailView):
     """View of the detail page."""
 
     model = Question
@@ -30,6 +32,17 @@ class DetailView(generic.DetailView):
 
     # def get_queryset(self):
     #     return Question.objects.filter(pub_date__lte=timezone.now())
+
+    # try:  # check whether the voter re-vote the same question
+    #     prev_vote = Vote.objects.get(question=question, voter=voter)
+    #     # prev_choice = Choice.objects.get(pk=prev_vote.values()[0]["choice_id"])
+    #     prev_choice = prev_vote.choice
+    #     if prev_choice.id == selected_choice.id:
+    #         increment = 0
+    #     prev_choice.votes -= 1
+    #     prev_choice.save()
+    # except ObjectDoesNotExist:  # new vote
+    #     pass
 
     def get(self, request, *args, **kwargs):
         """Handle request and return the appropriate response page."""
@@ -73,14 +86,15 @@ class ResultsView(generic.DetailView):
         return self.render_to_response(context)
 
 
+# class Vote(generic.)
+
+@login_required
 def vote(request, question_id):
     """Handle the vote request and return an appropriate response."""
+
+    voter = request.user
     question = get_object_or_404(Question, pk=question_id)
-    # if not question.can_vote():
-    #     # messages.error(request, "This question is not allowed for voting.")
-    #     # return redirect('polls:index')
-    #     return HttpResponseRedirect(reverse('polls:index'),
-    #     messages.error(request, "This question is not allowed for voting."))
+
     try:
         selected_choice = \
             question.choice_set.get(pk=request.POST['choice'])
@@ -91,9 +105,30 @@ def vote(request, question_id):
                           'error_message': "You didn't select a choice.",
                       })
     else:  # other exceptions or succession
-        selected_choice.votes += 1
+        # prev_vote = Vote.objects.filter(question=question, voter=voter)
+        increment = 1
+        try:  # check whether the voter re-vote the same question
+            prev_vote = Vote.objects.get(question=question, voter=voter)
+            # prev_choice = Choice.objects.get(pk=prev_vote.values()[0]["choice_id"])
+            prev_choice = prev_vote.choice
+            if prev_choice.id == selected_choice.id:
+                increment = 0
+            prev_choice.votes -= 1
+            prev_choice.save()
+        except ObjectDoesNotExist:  # new vote
+            pass
+
+        # print(f"----------------------\n{increment}\n--------------------\n")
+
+        Vote.objects.update_or_create(
+            voter=voter, question=question,
+            defaults={'choice': selected_choice}
+        )
+        selected_choice.votes += increment
         selected_choice.save()
         return HttpResponseRedirect(reverse(
             'polls:results',
             args=(question.id,)
         ))
+
+
